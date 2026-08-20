@@ -2,12 +2,24 @@
   "name": "n8n-nodes-smartsend",
   "version": "0.1.0",
   "description": "n8n community node for Smart Send V2 — WhatsApp automation, templates, conversations, tags, lists and bot flows",
-  "keywords": ["n8n-community-node-package", "n8n", "smartsend", "whatsapp"],
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "smartsend",
+    "whatsapp"
+  ],
   "license": "MIT",
-  "author": { "name": "Rotem Abergel", "email": "rotem@oversight.co.il" },
-  "engines": { "node": ">=20.15" },
+  "author": {
+    "name": "Rotem Abergel",
+    "email": "rotem@oversight.co.il"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
   "main": "index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",
@@ -16,12 +28,17 @@
     "format": "prettier nodes credentials --write",
     "test": "jest",
     "smoke": "tsx --env-file=.env scripts/smoke.ts",
-    "prepublishOnly": "npm run build && npm run lint"
+    "prepublishOnly": "npm run build && npm run lint",
+    "verify:live": "tsx --env-file=.env scripts/verify-live.ts"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": ["dist/credentials/SmartSendApi.credentials.js"],
-    "nodes": ["dist/nodes/SmartSend/SmartSend.node.js"]
+    "credentials": [
+      "dist/credentials/SmartSendApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/SmartSend/SmartSend.node.js"
+    ]
   },
   "peerDependencies": {
     "n8n-workflow": "*"
