@@ -1,8 +1,16 @@
 name: Publish to npm
 
-# n8n requires verified community nodes to be published from GitHub Actions
-# with an npm provenance attestation (mandatory since 1 May 2026). Publishing
-# from a local machine disqualifies the package from verification.
+# Publishes via npm Trusted Publishing (OIDC) — no NPM_TOKEN required.
+#
+# Why not a token: npm invalidated granular access tokens that bypass 2FA (a
+# response to the 2026 supply-chain attacks), so token-based CI publishing on a
+# 2FA-enabled account now fails with EOTP. Trusted publishing replaces it and
+# generates the provenance attestation automatically, which n8n requires for
+# community-node verification.
+#
+# Prerequisite: a trusted publisher must be registered for this package at
+# npmjs.com -> package -> Settings -> Trusted Publisher, naming this repository
+# and this workflow file. See docs/PUBLISHING.md.
 on:
   release:
     types: [published]
@@ -12,8 +20,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      # Required for npm provenance: mints the OIDC token that ties the
-      # published tarball to this repository and commit.
+      # Mints the OIDC token that proves to npm this build came from this
+      # repository and commit. Trusted publishing does not work without it.
       id-token: write
       contents: read
 
@@ -25,6 +33,9 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
+      # Trusted publishing requires npm CLI 11.5.1 or later; Node 22 ships npm 10.
+      - run: npm install -g npm@latest
+
       # n8n-workflow pulls in isolated-vm, a native module we never execute —
       # only its TypeScript types are needed. Skipping install scripts avoids a
       # slow and unnecessary native build.
@@ -34,6 +45,6 @@ jobs:
       - run: npm test
       - run: npm run lint
 
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # No --provenance flag: trusted publishing attaches the attestation
+      # automatically. No NODE_AUTH_TOKEN: OIDC handles authentication.
+      - run: npm publish --access public

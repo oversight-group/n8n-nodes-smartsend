@@ -1,189 +1,193 @@
 # Publishing `n8n-nodes-smartsend` to npm
 
-A step-by-step guide to publishing this package and getting it verified by n8n, so it becomes
-installable from the n8n Community Nodes UI — and on n8n Cloud.
+## Why this is not just `npm publish`
 
-## Why the pipeline looks the way it does
+Two constraints collide, and the order of operations below exists to satisfy both.
 
-**Since 1 May 2026, n8n will not verify a node that was published from a local machine.** Verified
-community nodes must be published by GitHub Actions with an npm **provenance attestation** — a
-cryptographic statement tying the published tarball to a specific public repository and commit.
-n8n's scanner reads that attestation, downloads the attested source from GitHub, and lints *both*
-the source and the shipped tarball.
+**1. n8n requires provenance from CI.** Since 1 May 2026, n8n will not verify a community node
+published from a local machine. Verified nodes must be published by GitHub Actions with an npm
+**provenance attestation** tying the tarball to a specific public repo and commit.
 
-That has three consequences:
+**2. npm killed token-based CI publishing on 2FA accounts.** npm invalidated granular access tokens
+with write access that bypass two-factor authentication, in response to the 2026 supply-chain
+attacks. A CI publish using `NPM_TOKEN` on a 2FA-enabled account now fails with:
 
-1. The code must live in a **public GitHub repository**.
-2. Publishing happens by **creating a GitHub Release**, never `npm publish` from your laptop.
-3. The **whole repository** must pass n8n's lint gate — not just the shipped files. This is why the
-   dev scripts in `scripts/` are plain `.mjs` rather than TypeScript: the gate lints every `.ts` and
-   `.js` file in the repo with `console` and `process` forbidden, and it ignores inline
-   eslint-disable comments.
+```
+npm error code EOTP
+npm error This operation requires a one-time password from your authenticator.
+```
 
-## Current state
+The replacement is **Trusted Publishing (OIDC)**: GitHub Actions proves its identity to npm
+directly, no token exists to leak, and provenance is attached automatically.
 
-Verify any time with `npm run scan`, which reproduces n8n's real gate offline.
+**3. But trusted publishing has a chicken-and-egg problem.** You configure a trusted publisher in a
+*package's* settings — and a package that has never been published has no settings page. So the very
+first publish cannot use trusted publishing.
 
-| Requirement | Status |
-|---|---|
-| Package name starts with `n8n-nodes-` | ✅ `n8n-nodes-smartsend` |
-| Name available on npm | ✅ unregistered as of 2026-08-20 |
-| Keyword `n8n-community-node-package` | ✅ |
-| **Zero runtime dependencies** | ✅ `dependencies: {}` |
-| MIT licence | ✅ |
-| TypeScript, strict | ✅ |
-| One third-party service per package | ✅ Smart Send only |
-| No env-var or filesystem access in shipped code | ✅ verified |
-| English-only node interface | ✅ |
-| README with auth + usage | ✅ |
-| Distinct light/dark icons | ✅ node and credential |
-| `repository` / `homepage` / `bugs` | ✅ `oversight-group/n8n-nodes-smartsend` |
-| GitHub Actions provenance workflow | ✅ `.github/workflows/publish.yml` |
-| **Passes n8n's verification scan** | ✅ both legs |
-| Public GitHub repo | ❌ **you must create it** — step 1 |
-| npm account + `NPM_TOKEN` secret | ❌ **you must create these** — steps 2–3 |
+### The resolution
 
-Everything that can be settled in the repository is settled. The three remaining items need your
-accounts.
+Claim the name with one local publish, then switch to trusted publishing for every real release:
+
+| Version | How | Provenance | Purpose |
+|---|---|---|---|
+| `0.0.1` | local `npm publish --otp=…` | none | creates the package so its settings page exists |
+| `0.1.0` onwards | GitHub Release → Actions | ✅ automatic | the releases people install; what you submit for verification |
+
+`0.0.1` is a real, working build — just an early version number. Submit `0.1.0` for verification, not
+`0.0.1`. Optionally `npm deprecate n8n-nodes-smartsend@0.0.1 "placeholder release"` afterwards to
+steer people away from it.
 
 ---
 
-## Step 1 — Create the GitHub repository
+## Step 1 — npm account and 2FA
 
-Provenance requires a **public** repo whose URL matches `repository` in `package.json` (already set
-to `oversight-group/n8n-nodes-smartsend`). The git remote is already configured:
+1. Sign up at [npmjs.com/signup](https://www.npmjs.com/signup). Use a company-controlled address if
+   this is an Oversight asset — publish rights follow the account.
+2. **Account → Two-Factor Authentication → Enable**, mode *Authorization and Publishing*.
+3. Optionally create an organisation (**Add Organization → `oversight-group`**, free for public
+   packages) so the package is not tied to a personal login. You can also publish first and transfer
+   the package to the org later from its Settings page.
+
+**You do not need to create an npm token.** That is the whole point of the flow below.
+
+## Step 2 — Claim the name with one local publish
+
+This is the only local publish you will ever do for this package.
 
 ```bash
-git remote -v   # origin  git@github.com:oversight-group/n8n-nodes-smartsend.git
+npm login                 # opens a browser
+npm whoami                # confirm
+npm run scan              # confirm n8n would accept the package
+npm publish --access public
 ```
 
-Create the repo under the org and push:
+npm will prompt for your authenticator code, or pass it directly:
 
 ```bash
-gh repo create oversight-group/n8n-nodes-smartsend --public --source=. --push
+npm publish --access public --otp=123456
 ```
 
-If it already exists:
+Confirm it landed:
 
 ```bash
-git push -u origin master
+npm view n8n-nodes-smartsend version    # 0.0.1
 ```
 
-> Provenance fails on a **private** repo. If the repo must stay private, drop `--provenance` from the
-> workflow — you lose the attestation and with it verification eligibility, but publishing works.
+## Step 3 — Register the trusted publisher
 
-## Step 2 — Create an npm account and a publish token
+Now that the package exists, go to
+**npmjs.com → n8n-nodes-smartsend → Settings → Trusted Publisher → GitHub Actions** and enter:
 
-1. Sign up at [npmjs.com](https://www.npmjs.com/signup) if needed. For an org-owned package,
-   consider creating an npm **organisation** so ownership is not tied to one person's account.
-2. **Enable two-factor authentication** (Account → Two-Factor Authentication).
-3. Create a token: **Access Tokens → Generate New Token → Granular Access Token**
-   - Permissions: **Read and write**
-   - Scope: "All packages" for the first publish (the package does not exist yet), then narrow it to
-     `n8n-nodes-smartsend` afterwards
-4. Copy the token — it is shown once.
+| Field | Value |
+|---|---|
+| Organization or user | `oversight-group` |
+| Repository | `n8n-nodes-smartsend` |
+| Workflow filename | `publish.yml` |
+| Environment | leave blank |
 
-## Step 3 — Add the token to GitHub
+The workflow filename must match exactly — it is part of what npm verifies.
 
-Repo **Settings → Secrets and variables → Actions → New repository secret**
-
-- Name: `NPM_TOKEN`
-- Value: the token from step 2
-
-> **Better alternative, once the package exists:** npm supports *trusted publishing* via OIDC, which
-> removes the long-lived token entirely. You register the repo and workflow on the npm package
-> settings page and delete the `NODE_AUTH_TOKEN` line from the workflow. Fewer secrets to leak.
-
-## Step 4 — Publish
-
-Publishing is triggered by a GitHub Release, never by a local command.
+## Step 4 — Release 0.1.0 through Actions
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
-gh release create v0.1.0 --title "v0.1.0" --notes "First release."
+npm version minor          # 0.0.1 -> 0.1.0, commits and tags
+git push --follow-tags
 ```
 
-The workflow runs `npm ci --ignore-scripts`, `build`, `test`, `lint`, then
-`npm publish --provenance --access public`.
+Then create a GitHub Release on the new tag (**Releases → Draft a new release → choose `v0.1.0` →
+Publish release**). That triggers the workflow.
 
-Watch it and confirm the result:
+The workflow already has everything trusted publishing needs:
+
+- `permissions: id-token: write` — mints the OIDC token
+- `npm install -g npm@latest` — trusted publishing requires npm CLI **11.5.1+**, and Node 22 ships
+  npm 10
+- `npm publish --access public` — **no** `--provenance` flag and **no** `NODE_AUTH_TOKEN`; trusted
+  publishing handles both
+
+## Step 5 — Verify the publish
 
 ```bash
-gh run watch
 npm view n8n-nodes-smartsend
-curl -s https://registry.npmjs.org/-/npm/v1/attestations/n8n-nodes-smartsend@0.1.0 | head -c 400
 ```
 
-The npm page should show a **Provenance** section naming the repo and commit. If it does not,
-verification will be rejected — check the workflow has `id-token: write` permission.
+Open the npm package page and confirm a **Provenance** section naming the repo and commit. If it is
+missing, verification will be rejected. Check in this order:
 
-## Step 5 — Install it in n8n
+1. The trusted publisher entry names the right repo *and* workflow filename.
+2. The workflow run shows `id-token: write`.
+3. The npm CLI in the run is 11.5.1 or later.
 
-Once published, any self-hosted n8n can install it by name:
+## Step 6 — Submit for verification
+
+Verification is what makes the node installable on **n8n Cloud** and lists it in n8n's directory.
+
+1. `npm run scan` — both legs must pass.
+2. Confirm `0.1.0` has a provenance attestation.
+3. Submit at the [n8n Creator Portal](https://creators.n8n.io/nodes).
+
+## Installing it meanwhile
+
+Self-hosted n8n can install it as soon as it is on npm, verified or not:
 
 **Settings → Community Nodes → Install** → `n8n-nodes-smartsend`
 
-Until verification completes, instances may need:
+Unverified packages may need these on the instance:
 
 ```bash
 N8N_COMMUNITY_PACKAGES_ENABLED=true
 N8N_UNVERIFIED_PACKAGES_ENABLED=true
 ```
 
-The second one's default is changing to `false` in a future n8n version, so set it explicitly rather
-than relying on today's behaviour.
-
-## Step 6 — Submit for verification
-
-Verification is what makes the node installable on **n8n Cloud** and listed in n8n's directory.
-
-1. Run the gate one final time: `npm run scan` — both legs must pass.
-2. Confirm the published package has a provenance attestation (step 4).
-3. Go to the [n8n Creator Portal](https://creators.n8n.io/nodes), sign up or log in, and submit the
-   package for verification.
-
-Then wait for n8n's review.
+The second one's default is changing to `false` in a future n8n version, so set it explicitly.
 
 ---
 
-## Things to know before you publish
+## Verification readiness
 
-**Publishing is effectively permanent.** You cannot republish the same version number. Unpublishing
-is only possible within 72 hours and is discouraged; after that the version is immutable. Get
-`npm run scan` green *before* releasing, not after.
+Run `npm run scan` to reproduce n8n's real gate offline. It lints the source checkout and the built
+output, the same two legs n8n checks. Everything below is already satisfied:
 
-**Your email becomes public.** `package.json` declares `"author": { "email": "rotem@oversight.co.il" }`
-and that is published in the package metadata, visible on npm permanently. Substitute a role address
-if you would rather not have it scraped.
+| Requirement | Status |
+|---|---|
+| Name starts with `n8n-nodes-` | ✅ |
+| Keyword `n8n-community-node-package` | ✅ |
+| **Zero runtime dependencies** | ✅ `dependencies: {}` |
+| MIT licence | ✅ required by n8n; a copyleft licence is rejected outright |
+| TypeScript, strict | ✅ |
+| One third-party service per package | ✅ |
+| No env-var or filesystem access in shipped code | ✅ |
+| English-only node interface | ✅ |
+| Distinct light/dark icons, node and credential | ✅ |
+| `repository` / `homepage` / `bugs` | ✅ |
+| Passes the scan, both legs | ✅ |
 
-**Keep the licence MIT.** n8n's verification programme requires it, enforced as a hard error
-(`community-package-json-license-not-default`). A copyleft licence such as GPL-3.0 passes every other
-check but is rejected outright, which also rules out n8n Cloud. This was tested, not assumed.
+## Things to know
 
-**n8n can decline.** The docs state n8n reserves discretion to reject nodes that compete with its
-paid or enterprise features. A WhatsApp integration for a third-party service is not in that
-category, but the discretion exists.
+**Publishing is permanent.** You cannot republish a version number. Unpublishing is possible only
+within 72 hours and is discouraged.
 
-**One known deviation from n8n's advice.** n8n strongly suggests scaffolding new nodes with their
-`n8n-node` CLI tool. This package was built by hand instead. It passes the automated gate — which is
-what the scan enforces — but a human reviewer could still comment on structure. If that becomes a
-sticking point, the fix is mechanical: scaffold a fresh package with the CLI and move
-`nodes/SmartSend/` and `credentials/` across.
+**Your email becomes public.** `package.json` declares `"author": { "email": "rotem@oversight.co.il" }`,
+published to npm metadata permanently. Substitute a role address if you would rather not have it
+scraped.
 
-**One remaining non-blocking warning.** The scan warns that a field named `organizationId` does not
-look like a secret, so it questions `password: true`. It *is* a secret — it is the auth token — so
-`password: true` is correct and the warning is a false positive. Renaming the field to
-`organizationToken` would silence it and read better, given how easily the token is confused with
-the short workspace code, but it breaks any already-saved credential. Free to do only before the
-first publish.
+**Keep the licence MIT.** n8n enforces it as a hard error
+(`community-package-json-license-not-default`). Tested, not assumed.
 
-## Version bumps later
+**One known deviation.** n8n suggests scaffolding nodes with their `n8n-node` CLI; this package was
+built by hand. It passes the automated gate, but a reviewer could comment on structure. The fix would
+be mechanical: scaffold fresh and move `nodes/SmartSend/` and `credentials/` across.
+
+**One non-blocking warning.** The scan warns that a field named `organizationId` does not look like a
+secret, so it questions `password: true`. It *is* a secret — the auth token — so the warning is a
+false positive. Renaming to `organizationToken` would silence it and read better, but breaks
+already-saved credentials, so it is only free before the first publish.
+
+## Later releases
 
 ```bash
-npm version patch      # or minor / major
+npm version patch          # or minor / major
 git push --follow-tags
-gh release create v<new-version> --generate-notes
 ```
 
-Each release triggers the same provenance-attested publish.
+Then draft a Release on the new tag. Each release publishes via trusted publishing with provenance.
