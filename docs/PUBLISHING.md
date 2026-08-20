@@ -167,9 +167,10 @@ output, the same two legs n8n checks. Everything below is already satisfied:
 **Publishing is permanent.** You cannot republish a version number. Unpublishing is possible only
 within 72 hours and is discouraged.
 
-**Your email becomes public.** `package.json` declares `"author": { "email": "rotem@oversight.co.il" }`,
-published to npm metadata permanently. Substitute a role address if you would rather not have it
-scraped.
+**The author email is public and permanent, and n8n requires it.** Removing it fails the gate with
+`@n8n/community-nodes/valid-author` — "The author field must include a non-empty email" — so the
+choice is *which* address, not whether to have one. A role address (`dev@`, `npm@`) keeps a personal
+inbox out of npm metadata while still giving people somewhere to report problems.
 
 **Keep the licence MIT.** n8n enforces it as a hard error
 (`community-package-json-license-not-default`). Tested, not assumed.
@@ -178,10 +179,11 @@ scraped.
 built by hand. It passes the automated gate, but a reviewer could comment on structure. The fix would
 be mechanical: scaffold fresh and move `nodes/SmartSend/` and `credentials/` across.
 
-**One non-blocking warning.** The scan warns that a field named `organizationId` does not look like a
-secret, so it questions `password: true`. It *is* a secret — the auth token — so the warning is a
-false positive. Renaming to `organizationToken` would silence it and read better, but breaks
-already-saved credentials, so it is only free before the first publish.
+**The credential field is `organizationToken`, not `organizationId`.** Named that way on purpose: the
+value is the long integration token, and n8n's scanner flags a field named `…Id` carrying
+`password: true` as suspicious because the name does not read like a secret. The rename settles both
+the warning and the confusion. Changing it after publication would invalidate every saved
+credential, so it was done before the first release.
 
 ## Later releases
 

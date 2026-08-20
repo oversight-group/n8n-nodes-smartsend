@@ -25,7 +25,7 @@ function harness(options: HarnessOptions) {
 			name in options.params ? options.params[name] : fallback,
 		getNode: () => ({ name: 'Smart Send', type: 'smartSend' }),
 		getCredentials: async () => ({
-			organizationId: 'token',
+			organizationToken: 'token',
 			baseUrl: 'https://example.test',
 		}),
 		continueOnFail: () => options.continueOnFail === true,

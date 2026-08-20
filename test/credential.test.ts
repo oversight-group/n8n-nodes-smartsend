@@ -9,7 +9,7 @@ describe('SmartSendApi credential', () => {
 
 	it('sends the token in the x-organization-id header', () => {
 		expect(cred.authenticate.properties.headers).toEqual({
-			'x-organization-id': '={{$credentials.organizationId}}',
+			'x-organization-id': '={{$credentials.organizationToken}}',
 		});
 	});
 
@@ -19,7 +19,7 @@ describe('SmartSendApi credential', () => {
 	});
 
 	it('marks the token as a password field', () => {
-		const token = cred.properties.find((p) => p.name === 'organizationId');
+		const token = cred.properties.find((p) => p.name === 'organizationToken');
 		expect(token?.typeOptions?.password).toBe(true);
 	});
 

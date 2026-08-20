@@ -197,7 +197,7 @@ the result.
 
 | Field | Type | Notes |
 |---|---|---|
-| `organizationId` | string, `password: true` | The **token**, not the short workspace code. Hint text states this explicitly. |
+| `organizationToken` | string, `password: true` | The **token**, not the short workspace code. Hint text states this explicitly. |
 | `baseUrl` | string | Defaults to the production URL; overridable for `localhost:3091`. |
 
 - `authenticate`: generic auth injecting the `x-organization-id` header.

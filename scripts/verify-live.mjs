@@ -49,7 +49,7 @@ async function httpRequestWithAuthentication(_credentialType, options) {
 /** Builds a fake context exposing only the surface the node touches. */
 function context(params = {}) {
 	return {
-		getCredentials: async () => ({ organizationId: TOKEN, baseUrl: BASE }),
+		getCredentials: async () => ({ organizationToken: TOKEN, baseUrl: BASE }),
 		getNode: () => ({ name: 'Smart Send', type: 'smartSend' }),
 		getNodeParameter: (name, ...rest) => {
 			if (name in params) return params[name];

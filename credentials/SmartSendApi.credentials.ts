@@ -18,7 +18,7 @@ export class SmartSendApi implements ICredentialType {
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Organization Token',
-			name: 'organizationId',
+			name: 'organizationToken',
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
@@ -39,7 +39,7 @@ export class SmartSendApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				'x-organization-id': '={{$credentials.organizationId}}',
+				'x-organization-id': '={{$credentials.organizationToken}}',
 			},
 		},
 	};
