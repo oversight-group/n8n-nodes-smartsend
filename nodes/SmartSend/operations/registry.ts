@@ -1,5 +1,5 @@
 import type { IDataObject } from 'n8n-workflow';
-import { flattenTemplateParams } from './templates';
+import { flattenBotTemplateParams, flattenTemplateParams } from './templates';
 
 export type OperationParams = Record<string, unknown>;
 
@@ -70,6 +70,26 @@ function keyValueMap(params: OperationParams, name: string): IDataObject | undef
 	}
 
 	return Object.keys(map).length > 0 ? map : undefined;
+}
+
+/**
+ * The action endpoints accept either fieldId or fieldName, never both. The UI
+ * offers a Field Source choice because /rpc/custom-fields needs a listId that
+ * the action payload itself has no room for.
+ */
+function fieldIdentifier(source: unknown, fieldId: unknown, fieldName: unknown): IDataObject {
+	return source === 'name'
+		? { fieldName: fieldName as IDataObject[string] }
+		: { fieldId: fieldId as IDataObject[string] };
+}
+
+function botTemplatePayload(params: OperationParams): IDataObject {
+	const parts = flattenBotTemplateParams(mappedValues(params, 'botTemplateFields'));
+	const hasParams = Object.keys(parts.templateParams).length > 0;
+	return compact({
+		templateParams: hasParams ? parts.templateParams : undefined,
+		...parts.passthrough,
+	});
 }
 
 export const OPERATIONS: Record<string, OperationDefinition> = {
@@ -212,6 +232,94 @@ export const OPERATIONS: Record<string, OperationDefinition> = {
 		method: 'POST',
 		required: ['listId', 'phoneNumber'],
 		buildBody: (p) => compact({ listId: p.listId, phoneNumber: p.phoneNumber }),
+	},
+
+	// value is deliberately NOT required: an empty value clears the field.
+	'customField:set': {
+		endpoint: '/conversations/set-custom-field',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) =>
+			compact({
+				phoneNumber: p.phoneNumber,
+				...fieldIdentifier(p.fieldSource, p.fieldId, p.fieldName),
+				value: p.value,
+			}),
+	},
+
+	'customField:setMany': {
+		endpoint: '/conversations/set-custom-fields',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => {
+			const container = p.fieldsUi as
+				| {
+						field?: Array<{
+							fieldSource?: unknown;
+							fieldId?: unknown;
+							fieldName?: unknown;
+							value?: unknown;
+						}>;
+				  }
+				| undefined;
+
+			const fields = (container?.field ?? []).map((row) =>
+				compact({
+					...fieldIdentifier(row.fieldSource, row.fieldId, row.fieldName),
+					value: row.value,
+				}),
+			);
+
+			return compact({ phoneNumber: p.phoneNumber, fields });
+		},
+	},
+
+	'bot:triggerFlow': {
+		endpoint: '/flows/send',
+		method: 'POST',
+		required: ['phoneNumber', 'botId'],
+		buildBody: (p) =>
+			compact({
+				phoneNumber: p.phoneNumber,
+				botId: p.botId,
+				...botTemplatePayload(p),
+				...additional(p),
+			}),
+	},
+
+	'blacklist:add': {
+		endpoint: '/blacklist/add',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, ...additional(p) }),
+	},
+
+	'blacklist:remove': {
+		endpoint: '/blacklist/remove',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber }),
+	},
+
+	'notification:sendPush': {
+		endpoint: '/notifications/push',
+		method: 'POST',
+		required: ['recipientType', 'title', 'body'],
+		buildBody: (p) =>
+			compact({
+				recipientType: p.recipientType,
+				userId: p.recipientType === 'user' ? p.userId : undefined,
+				phoneNumber: p.recipientType === 'phone' ? p.phoneNumber : undefined,
+				title: p.title,
+				body: p.body,
+				...additional(p),
+			}),
+	},
+
+	'organization:validate': {
+		endpoint: '/validate',
+		method: 'GET',
+		required: [],
 	},
 };
 
