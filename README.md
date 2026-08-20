@@ -132,6 +132,12 @@ docker run -it --rm -p 5678:5678 -v "$HOME/.n8n:/home/node/.n8n" docker.n8n.io/n
 
 Then open http://localhost:5678.
 
+## API notes
+
+[docs/api-notes.md](docs/api-notes.md) records what was verified against the live Smart Send API,
+including three places where the published documentation and OpenAPI spec are wrong. Worth reading
+before changing the transport or the template flatteners.
+
 ## Publishing
 
 See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full route to npm and n8n verification.
