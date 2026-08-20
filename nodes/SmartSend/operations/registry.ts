@@ -54,6 +54,24 @@ function templatePayload(params: OperationParams): IDataObject {
 	});
 }
 
+/**
+ * Converts an n8n fixedCollection of {name, value} rows into a plain map.
+ * Returns undefined when empty so the key is omitted from the payload entirely.
+ */
+function keyValueMap(params: OperationParams, name: string): IDataObject | undefined {
+	const container = params[name] as
+		| { field?: Array<{ name?: string; value?: unknown }> }
+		| undefined;
+	const rows = container?.field ?? [];
+
+	const map: IDataObject = {};
+	for (const row of rows) {
+		if (row.name !== undefined && row.name !== '') map[row.name] = row.value as IDataObject[string];
+	}
+
+	return Object.keys(map).length > 0 ? map : undefined;
+}
+
 export const OPERATIONS: Record<string, OperationDefinition> = {
 	'message:sendText': {
 		endpoint: '/messages/send-text',
@@ -95,6 +113,105 @@ export const OPERATIONS: Record<string, OperationDefinition> = {
 				...templatePayload(p),
 				...additional(p),
 			}),
+	},
+
+	'conversation:resolve': {
+		endpoint: '/conversations/resolve',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber }),
+	},
+
+	// displayName is deliberately NOT required: an empty value is the documented
+	// way to reset the conversation back to the WhatsApp profile name.
+	'conversation:updateDisplayName': {
+		endpoint: '/conversations/display-name',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, displayName: p.displayName }),
+	},
+
+	'conversation:assignUser': {
+		endpoint: '/conversations/assign',
+		method: 'POST',
+		required: ['phoneNumber', 'userId'],
+		buildBody: (p) =>
+			compact({
+				phoneNumber: p.phoneNumber,
+				userId: p.userId,
+				replaceExisting: p.replaceExisting,
+				...additional(p),
+			}),
+	},
+
+	'conversation:createNote': {
+		endpoint: '/conversations/notes',
+		method: 'POST',
+		required: ['phoneNumber', 'content'],
+		buildBody: (p) =>
+			compact({ phoneNumber: p.phoneNumber, content: p.content, ...additional(p) }),
+	},
+
+	'conversation:setFlag': {
+		endpoint: '/conversations/flag',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, color: p.color }),
+	},
+
+	'tag:add': {
+		endpoint: '/conversations/tags/add',
+		method: 'POST',
+		required: ['phoneNumber', 'tagId'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, tagId: p.tagId, ...additional(p) }),
+	},
+
+	'tag:remove': {
+		endpoint: '/conversations/tags/remove',
+		method: 'POST',
+		required: ['phoneNumber', 'tagId'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, tagId: p.tagId, ...additional(p) }),
+	},
+
+	'tag:clear': {
+		endpoint: '/conversations/tags/clear',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, ...additional(p) }),
+	},
+
+	'list:addToConversation': {
+		endpoint: '/conversations/lists/add',
+		method: 'POST',
+		required: ['phoneNumber', 'listId'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, listId: p.listId, ...additional(p) }),
+	},
+
+	'list:clearFromConversation': {
+		endpoint: '/conversations/lists/clear',
+		method: 'POST',
+		required: ['phoneNumber'],
+		buildBody: (p) => compact({ phoneNumber: p.phoneNumber, ...additional(p) }),
+	},
+
+	'list:addRecipient': {
+		endpoint: '/lists/add-recipient',
+		method: 'POST',
+		required: ['listId', 'phoneNumber'],
+		buildBody: (p) =>
+			compact({
+				listId: p.listId,
+				phoneNumber: p.phoneNumber,
+				name: p.name,
+				customFields: keyValueMap(p, 'customFieldsUi'),
+			}),
+	},
+
+	'list:removeRecipient': {
+		endpoint: '/lists/remove-recipient',
+		method: 'POST',
+		required: ['listId', 'phoneNumber'],
+		buildBody: (p) => compact({ listId: p.listId, phoneNumber: p.phoneNumber }),
 	},
 };
 
