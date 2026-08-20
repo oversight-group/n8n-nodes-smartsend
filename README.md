@@ -83,6 +83,13 @@ parameter area stays empty. Everything else works normally.
 Point **Input Binary Field** at a binary property on the incoming item (default `data`). The node
 base64-encodes it and derives the file name from the binary metadata unless you override it.
 
+## Compatibility
+
+Works across n8n versions. The node resolves its connection type defensively, because
+`NodeConnectionTypes` is a recent `n8n-workflow` export and reading it on an older install throws
+during class construction — which n8n reports as the misleading "Class could not be found". If you
+see that error on any n8n node, suspect a throwing constructor rather than a naming problem.
+
 ## Known Smart Send API quirks
 
 These are properties of the upstream API, documented here so the behaviour isn't mistaken for a bug
