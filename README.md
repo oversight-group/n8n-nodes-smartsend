@@ -114,10 +114,13 @@ build is safe.
 `.env.example` to `.env`, fill in your token, and run:
 
 ```bash
-npm run smoke
+npm run smoke        # asserts the API contract: envelopes, {id,value}, auth enforcement
+npm run verify:live  # drives the node's own dropdown and template-field code
 ```
 
-That hits read-only endpoints only and sends no WhatsApp messages.
+Both hit read-only endpoints only and send no WhatsApp messages. `verify:live` is the more useful
+of the two while developing — it prints exactly what every dropdown and every dynamic template
+field will render in the UI, so you can check the node's behaviour without clicking through n8n.
 
 ### Testing in a real n8n
 
