@@ -18,8 +18,13 @@ describe('SmartSend node description', () => {
 		expect(node.description.outputs).toHaveLength(1);
 	});
 
-	it('references the bundled icon', () => {
-		expect(node.description.icon).toBe('file:smartsend.svg');
+	it('references distinct light and dark icons', () => {
+		// n8n's verification gate rejects a single icon, and also rejects light
+		// and dark pointing at the same file.
+		const icon = node.description.icon as { light: string; dark: string };
+		expect(icon.light).toBe('file:smartsend.svg');
+		expect(icon.dark).toBe('file:smartsend.dark.svg');
+		expect(icon.light).not.toBe(icon.dark);
 	});
 });
 

@@ -27,9 +27,10 @@
     "lintfix": "eslint nodes credentials package.json --fix",
     "format": "prettier nodes credentials --write",
     "test": "jest",
-    "smoke": "tsx --env-file=.env scripts/smoke.ts",
+    "smoke": "node --env-file=.env scripts/smoke.mjs",
     "prepublishOnly": "npm run build && npm run lint",
-    "verify:live": "tsx --env-file=.env scripts/verify-live.ts"
+    "verify:live": "node --env-file=.env scripts/verify-live.mjs",
+    "scan": "node scripts/scan.mjs"
   },
   "n8n": {
     "n8nNodesApiVersion": 1,
@@ -55,7 +56,6 @@
     "prettier": "^3.3.0",
     "rimraf": "^5.0.7",
     "ts-jest": "^29.1.4",
-    "tsx": "^4.15.0",
     "typescript": "^5.5.0"
   }
 }

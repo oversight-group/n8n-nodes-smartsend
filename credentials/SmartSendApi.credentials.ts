@@ -1,4 +1,5 @@
 import type {
+	Icon,
 	IAuthenticateGeneric,
 	ICredentialTestRequest,
 	ICredentialType,
@@ -7,6 +8,8 @@ import type {
 
 export class SmartSendApi implements ICredentialType {
 	name = 'smartSendApi';
+
+	icon: Icon = { light: 'file:smartsend.svg', dark: 'file:smartsend.dark.svg' };
 
 	displayName = 'Smart Send API';
 

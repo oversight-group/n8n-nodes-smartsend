@@ -5,7 +5,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { descriptions } from './descriptions';
 import { loadOptions, resourceMapping } from './methods/loadOptions';
@@ -50,15 +50,15 @@ export class SmartSend implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Smart Send',
 		name: 'smartSend',
-		icon: 'file:smartsend.svg',
+		icon: { light: 'file:smartsend.svg', dark: 'file:smartsend.dark.svg' },
 		group: ['output'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Send WhatsApp messages and manage conversations in Smart Send',
 		defaults: { name: 'Smart Send' },
 		usableAsTool: true,
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'smartSendApi', required: true }],
 		properties: descriptions,
 	};
@@ -126,7 +126,12 @@ export class SmartSend implements INodeType {
 					});
 					continue;
 				}
-				throw error;
+				// Raw errors must not escape the node: anything that is not already
+				// an n8n error is wrapped so the UI gets a typed, attributable
+				// failure rather than a bare Error.
+				throw error instanceof NodeApiError || error instanceof NodeOperationError
+					? error
+					: new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
 			}
 		}
 
