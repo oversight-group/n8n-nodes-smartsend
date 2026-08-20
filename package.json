@@ -8,10 +8,18 @@
     "smartsend",
     "whatsapp"
   ],
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "author": {
     "name": "Rotem Abergel",
     "email": "rotem@oversight.co.il"
+  },
+  "homepage": "https://github.com/oversight-group/n8n-nodes-smartsend#readme",
+  "bugs": {
+    "url": "https://github.com/oversight-group/n8n-nodes-smartsend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oversight-group/n8n-nodes-smartsend.git"
   },
   "engines": {
     "node": ">=20.15"

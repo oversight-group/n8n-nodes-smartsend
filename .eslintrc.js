@@ -10,7 +10,17 @@ module.exports = {
 			plugins: ['eslint-plugin-n8n-nodes-base'],
 			extends: ['plugin:n8n-nodes-base/community'],
 			parserOptions: { project: null, extraFileExtensions: ['.json'] },
-			rules: { 'n8n-nodes-base/community-package-json-name-still-default': 'off' },
+			rules: {
+				'n8n-nodes-base/community-package-json-name-still-default': 'off',
+				// This package is deliberately GPL-3.0-or-later, not MIT. n8n's
+				// verification programme requires MIT, so verification (and therefore
+				// n8n Cloud availability) is knowingly forgone — see docs/PUBLISHING.md.
+				// The rule is disabled here so `npm run lint`, and the CI publish job
+				// that runs it, do not fail on a settled licensing decision.
+				// `npm run scan` still reports it, which is correct: that command
+				// answers "would n8n verify this?", and the honest answer is no.
+				'n8n-nodes-base/community-package-json-license-not-default': 'off',
+			},
 		},
 		{
 			files: ['./credentials/**/*.ts'],
