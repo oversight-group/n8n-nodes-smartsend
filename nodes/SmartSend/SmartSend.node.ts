@@ -65,14 +65,14 @@ const COMMON_PARAMS = [
 
 export class SmartSend implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Smart Send',
+		displayName: 'SmartSend',
 		name: 'smartSend',
 		icon: { light: 'file:smartsend.svg', dark: 'file:smartsend.dark.svg' },
 		group: ['output'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Send WhatsApp messages and manage conversations in Smart Send',
-		defaults: { name: 'Smart Send' },
+		description: 'Send WhatsApp messages and manage conversations in SmartSend',
+		defaults: { name: 'SmartSend' },
 		usableAsTool: true,
 		inputs: [MAIN_CONNECTION],
 		outputs: [MAIN_CONNECTION],

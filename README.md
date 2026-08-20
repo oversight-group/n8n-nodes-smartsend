@@ -1,15 +1,15 @@
 # n8n-nodes-smartsend
 
-An [n8n](https://n8n.io) community node for [Smart Send](https://docs.smartsend.co.il) V2 — WhatsApp
+An [n8n](https://n8n.io) community node for [SmartSend](https://docs.smartsend.co.il) V2 — WhatsApp
 automation from your n8n workflows.
 
 - **22 operations** across 9 resources: messages, conversations, tags, lists, custom fields, bot
   flows, blacklist, push notifications
 - **Real dropdowns**, not hand-typed IDs. Templates, bots, tags, lists, users, flag colours and
-  custom fields are all loaded live from your Smart Send workspace
+  custom fields are all loaded live from your SmartSend workspace
 - **Dynamic template variables.** Pick an approved WhatsApp template and the node renders one
   labelled input per variable, including dynamic URL-button values and header media
-- **Precise errors.** Smart Send's API returns a bare `validation failed` with no field name, so
+- **Precise errors.** SmartSend's API returns a bare `validation failed` with no field name, so
   this node validates required fields locally and tells you exactly which one is missing
 - **Usable as an AI Agent tool**
 
@@ -29,16 +29,16 @@ cd ~/.n8n/nodes && npm install n8n-nodes-smartsend
 
 ## Credentials
 
-Create a **Smart Send API** credential with two fields:
+Create a **SmartSend API** credential with two fields:
 
 | Field | Value |
 |---|---|
-| Organization Token | Your Smart Send integration token |
+| Organization Token | Your SmartSend integration token |
 | Base URL | Leave as-is unless developing locally |
 
 > **⚠️ Use the token, not the short workspace code.**
 >
-> Smart Send shows you two values. The short one (something like `a1b2c3d4`) is **not** what this
+> SmartSend shows you two values. The short one (something like `a1b2c3d4`) is **not** what this
 > credential wants — supplying it fails with `unknown organization`. Use the long token (a
 > 25-character value). Click **Test** on the credential; a success also confirms your WhatsApp
 > connection is live.
@@ -57,12 +57,12 @@ Create a **Smart Send API** credential with two fields:
 | **Notification** | Send Push |
 | **Organization** | Validate |
 
-Phone numbers are accepted in any format (`972…`, `05…`, `+972…`) — Smart Send normalises them
+Phone numbers are accepted in any format (`972…`, `05…`, `+972…`) — SmartSend normalises them
 server-side, so no formatting is required on your end.
 
 ### Template parameters
 
-Select a template and the node calls Smart Send's template-parameters endpoint to render a labelled
+Select a template and the node calls SmartSend's template-parameters endpoint to render a labelled
 field per variable:
 
 | What you see | Where it goes |
@@ -90,7 +90,7 @@ Works across n8n versions. The node resolves its connection type defensively, be
 during class construction — which n8n reports as the misleading "Class could not be found". If you
 see that error on any n8n node, suspect a throwing constructor rather than a naming problem.
 
-## Known Smart Send API quirks
+## Known SmartSend API quirks
 
 These are properties of the upstream API, documented here so the behaviour isn't mistaken for a bug
 in this node.
@@ -141,7 +141,7 @@ Then open http://localhost:5678.
 
 ## API notes
 
-[docs/api-notes.md](docs/api-notes.md) records what was verified against the live Smart Send API,
+[docs/api-notes.md](docs/api-notes.md) records what was verified against the live SmartSend API,
 including three places where the published documentation and OpenAPI spec are wrong. Worth reading
 before changing the transport or the template flatteners.
 

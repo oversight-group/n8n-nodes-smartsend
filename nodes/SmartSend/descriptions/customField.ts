@@ -14,7 +14,7 @@ const fieldRowValues: INodeProperties[] = [
 		type: 'options',
 		default: 'list',
 		description:
-			'How to identify the custom field. Definitions are sourced from a list because Smart Send exposes them per list.',
+			'How to identify the custom field. Definitions are sourced from a list because SmartSend exposes them per list.',
 		options: [
 			{ name: 'By Name', value: 'name' },
 			{ name: 'From List', value: 'list' },

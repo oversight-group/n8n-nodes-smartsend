@@ -29,7 +29,7 @@ export function phoneNumberField(resource: string, operations: string[]): INodeP
 		default: '',
 		placeholder: '+972500000000',
 		description:
-			'Recipient phone number in any format (972…, 05…, +972…). Smart Send normalises it server-side.',
+			'Recipient phone number in any format (972…, 05…, +972…). SmartSend normalises it server-side.',
 		displayOptions: { show: { resource: [resource], operation: operations } },
 	};
 }

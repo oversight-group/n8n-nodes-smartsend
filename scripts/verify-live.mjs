@@ -1,6 +1,6 @@
 /**
  * Drives the node's REAL loadOptions, resourceMapping and execute code against
- * the live Smart Send API through a minimal fake n8n context.
+ * the live SmartSend API through a minimal fake n8n context.
  *
  * This verifies what the node UI would actually render — every dropdown and
  * every dynamic template field — without needing an n8n instance.
@@ -50,7 +50,7 @@ async function httpRequestWithAuthentication(_credentialType, options) {
 function context(params = {}) {
 	return {
 		getCredentials: async () => ({ organizationToken: TOKEN, baseUrl: BASE }),
-		getNode: () => ({ name: 'Smart Send', type: 'smartSend' }),
+		getNode: () => ({ name: 'SmartSend', type: 'smartSend' }),
 		getNodeParameter: (name, ...rest) => {
 			if (name in params) return params[name];
 			// Load-options context passes the fallback as the 2nd argument;

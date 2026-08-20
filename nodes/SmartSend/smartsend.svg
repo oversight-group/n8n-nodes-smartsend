@@ -1,5 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
-	<rect width="60" height="60" rx="13" fill="#25D366"/>
-	<path d="M13 30.5 46 16 38.5 45.5 28.5 38.5 24.5 44.5 23 34.5z" fill="#fff"/>
-	<path d="M24.5 44.5 24 34.8 40.5 21z" fill="#c9f5da"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 389 389" width="389" height="389">
+	<title>SmartSend</title>
+	<!--
+		Two overlapping rounded triangles. Corner rounding comes from a thick
+		round-joined stroke in the same colour as the fill, which keeps the paths
+		simple and scales cleanly at the 18px size n8n renders icons at.
+
+		Light variant: mint triangle over dark navy. The mint sits on top at
+		partial opacity so the intersection reads as the mid-teal of the brand mark.
+	-->
+	<g stroke-linejoin="round" stroke-linecap="round" stroke-width="58">
+		<path d="M104 176 L360 108 L272 330 Z" fill="#234A5B" stroke="#234A5B" />
+		<path d="M58 108 L314 40 L226 262 Z" fill="#6FEBDE" stroke="#6FEBDE" opacity="0.82" />
+	</g>
 </svg>

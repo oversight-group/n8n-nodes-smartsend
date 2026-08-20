@@ -327,7 +327,7 @@ export function getOperation(resource: string, operation: string): OperationDefi
 	const key = `${resource}:${operation}`;
 	const definition = OPERATIONS[key];
 	if (definition === undefined) {
-		throw new Error(`Unsupported Smart Send operation: ${key}`);
+		throw new Error(`Unsupported SmartSend operation: ${key}`);
 	}
 	return definition;
 }

@@ -1,4 +1,4 @@
-# Smart Send V2 API — verified notes and node design
+# SmartSend V2 API — verified notes and node design
 
 **Date:** 2026-08-20
 **Status:** implemented
@@ -6,9 +6,9 @@
 
 ## 1. Goal
 
-Ship a working, publishable n8n community node package that exposes the Smart Send V2
+Ship a working, publishable n8n community node package that exposes the SmartSend V2
 public HTTP API (the "Make.com integration" API) as first-class n8n operations, with real
-dropdowns sourced from Smart Send's RPC endpoints and dynamically rendered WhatsApp
+dropdowns sourced from SmartSend's RPC endpoints and dynamically rendered WhatsApp
 template variables.
 
 Success criteria:
@@ -33,7 +33,7 @@ not merely read from the documentation.
 - Path prefix: `/integrations/make`
 - Auth: a single header, `x-organization-id`.
 
-**Important discrepancy.** Smart Send's UI presents two values: a short workspace code
+**Important discrepancy.** SmartSend's UI presents two values: a short workspace code
 (e.g. `a1b2c3d4`) and a longer token (a 25-character cuid). The value `x-organization-id`
 requires is **the token**, not the short code. Passing the short code returns
 `401 unknown organization`. No bearer token or other header is needed.
@@ -402,7 +402,7 @@ Credentials live in a gitignored `.env`. No organisation token is committed or h
    dropdown against real data — a UUID `id` with a display `value`, matching the shared
    contract. That list has no custom fields defined, so `/rpc/custom-fields` still returns
    `[]` and the custom-field *item* labels remain unverified. Defining a single custom field
-   on that list in the Smart Send UI would close this.
+   on that list in the SmartSend UI would close this.
 3. **Template `languageCode` disambiguation** — the templates RPC returns labels like
    `cart_24 (he)` but `id` is the bare name. Where an organisation has one template name in
    several languages the dropdown will show duplicate-looking entries. The node exposes an
@@ -412,9 +412,9 @@ Credentials live in a gitignored `.env`. No organisation token is committed or h
 ## 10. Out of scope
 
 - **Trigger node.** The API documents no webhook or polling endpoint, so inbound "message
-  received starts a workflow" is not buildable. Would require a Smart Send server-side
+  received starts a workflow" is not buildable. Would require a SmartSend server-side
   webhook that does not currently exist.
-- Internal Smart Send dashboard APIs; only the public Make.com integration surface is
+- Internal SmartSend dashboard APIs; only the public Make.com integration surface is
   wrapped.
 - Publishing to npm. The package is built to the public community-node standard (lint
   ruleset, LICENSE, README, icon, codex metadata) so publishing remains a single later

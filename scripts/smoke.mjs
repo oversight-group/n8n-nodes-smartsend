@@ -1,5 +1,5 @@
 /**
- * Live read-only verification of the Smart Send API contract.
+ * Live read-only verification of the SmartSend API contract.
  *
  * Sends NO WhatsApp messages: only GET endpoints are called. Run with:
  *   npm run smoke

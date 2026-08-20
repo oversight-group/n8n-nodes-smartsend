@@ -1,7 +1,7 @@
 # Manual Verification Record
 
 **Date:** 2026-08-20
-**Package version:** 0.1.0
+**Package version:** 0.1.2
 **Workspace:** a live production workspace (WhatsApp connected)
 **n8n:** official Docker image, custom node installed into `~/.n8n/nodes` from a packed tarball
 
@@ -70,7 +70,7 @@ Three real WhatsApp messages to an operator-nominated test number:
 | # | Item | Why it is blocked |
 |---|---|---|
 | A | Click-through of the node in the n8n UI | n8n requires owner-account setup (email + password) before the UI unlocks. Creating accounts and entering passwords is out of scope for the agent, so this step is left to the operator. Everything the UI would display has been verified programmatically above. |
-| B | Custom-field option labels | The workspace list `(test list)` has no custom fields defined, and the public API has no endpoint to create one. Adding a single custom field to that list in the Smart Send UI would let check #9 return real data and confirm the label mapping. |
+| B | Custom-field option labels | The workspace list `(test list)` has no custom fields defined, and the public API has no endpoint to create one. Adding a single custom field to that list in the SmartSend UI would let check #9 return real data and confirm the label mapping. |
 | C | Attach the node to an AI Agent as a tool | `usableAsTool: true` is set and unit-tested, but the drag-and-drop confirmation needs the UI, so it is gated behind item A. |
 
 ## Operator instructions for item A
@@ -81,10 +81,10 @@ docker start n8n-smartsend-test   # already created, or see README to recreate
 
 Open http://localhost:5678, complete the owner setup, then:
 
-1. Add a **Smart Send API** credential and paste the long integration token. Click **Test** —
+1. Add a **SmartSend API** credential and paste the long integration token. Click **Test** —
    expect "Connection tested successfully". For contrast, paste the short workspace code and Test
    again; expect a failure naming "unknown organization".
-2. Add the **Smart Send** node. Confirm the icon renders and the Resource dropdown lists all nine
+2. Add the **SmartSend** node. Confirm the icon renders and the Resource dropdown lists all nine
    resources.
 3. Set Resource → Message, Operation → Send Template, pick `cart_coupon`, and confirm four labelled
    parameter inputs appear.

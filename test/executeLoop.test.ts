@@ -23,7 +23,7 @@ function harness(options: HarnessOptions) {
 		getInputData: () => new Array(itemCount).fill({ json: {} }),
 		getNodeParameter: (name: string, _i: number, fallback?: unknown) =>
 			name in options.params ? options.params[name] : fallback,
-		getNode: () => ({ name: 'Smart Send', type: 'smartSend' }),
+		getNode: () => ({ name: 'SmartSend', type: 'smartSend' }),
 		getCredentials: async () => ({
 			organizationToken: 'token',
 			baseUrl: 'https://example.test',

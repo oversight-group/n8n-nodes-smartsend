@@ -11,7 +11,7 @@ export class SmartSendApi implements ICredentialType {
 
 	icon: Icon = { light: 'file:smartsend.svg', dark: 'file:smartsend.dark.svg' };
 
-	displayName = 'Smart Send API';
+	displayName = 'SmartSend API';
 
 	documentationUrl = 'https://docs.smartsend.co.il/en/authentication';
 
@@ -24,7 +24,7 @@ export class SmartSendApi implements ICredentialType {
 			default: '',
 			required: true,
 			description:
-				'The long Smart Send integration token, not the short workspace code. Supplying the short code fails with "unknown organization".',
+				'The long SmartSend integration token, not the short workspace code. Supplying the short code fails with "unknown organization".',
 		},
 		{
 			displayName: 'Base URL',

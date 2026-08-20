@@ -75,7 +75,7 @@ export async function smartSendApiRequest(
 	}
 
 	if (isEnvelopeFailure(response)) {
-		const description = describeApiError(response, 'Smart Send rejected the request');
+		const description = describeApiError(response, 'SmartSend rejected the request');
 		throw new NodeApiError(ctx.getNode(), response as never, { message: description });
 	}
 
