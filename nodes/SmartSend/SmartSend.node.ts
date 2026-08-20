@@ -23,6 +23,7 @@ const COMMON_PARAMS = [
 	'templateName',
 	'languageCode',
 	'templateFields',
+	'fileName',
 	'displayName',
 	'userId',
 	'replaceExisting',
