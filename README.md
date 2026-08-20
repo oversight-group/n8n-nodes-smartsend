@@ -139,8 +139,4 @@ Run `npm run scan` to check the package against n8n's real verification gate bef
 
 ## License
 
-[GPL-3.0-or-later](LICENSE)
-
-Note: n8n's verified-community-node programme requires an MIT licence, so this package can be
-published to npm and installed on self-hosted n8n, but is not eligible for verification or for
-n8n Cloud. See [docs/PUBLISHING.md](docs/PUBLISHING.md).
+[MIT](LICENSE)

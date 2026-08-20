@@ -8,7 +8,7 @@
     "smartsend",
     "whatsapp"
   ],
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "author": {
     "name": "Rotem Abergel",
     "email": "rotem@oversight.co.il"
