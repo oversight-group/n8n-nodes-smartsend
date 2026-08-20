@@ -1,0 +1,61 @@
+{
+  "name": "n8n-nodes-smartsend",
+  "version": "0.1.0",
+  "description": "n8n community node for Smart Send V2 — WhatsApp automation, templates, conversations, tags, lists and bot flows",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "smartsend",
+    "whatsapp"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Rotem Abergel",
+    "email": "rotem@oversight.co.il"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rimraf dist && tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "format": "prettier nodes credentials --write",
+    "test": "jest",
+    "smoke": "tsx --env-file=.env scripts/smoke.ts",
+    "prepublishOnly": "npm run build && npm run lint",
+    "verify:live": "tsx --env-file=.env scripts/verify-live.ts"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/SmartSendApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/SmartSend/SmartSend.node.js"
+    ]
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.1",
+    "gulp": "^5.0.0",
+    "jest": "^29.7.0",
+    "n8n-workflow": "*",
+    "prettier": "^3.3.0",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^29.1.4",
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0"
+  }
+}
