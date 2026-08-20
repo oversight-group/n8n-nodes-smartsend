@@ -21,8 +21,14 @@ function harness(options: HarnessOptions) {
 
 	const ctx = {
 		getInputData: () => new Array(itemCount).fill({ json: {} }),
-		getNodeParameter: (name: string, _i: number, fallback?: unknown) =>
-			name in options.params ? options.params[name] : fallback,
+		// Faithful to real n8n: it THROWS for a parameter that is not part of the
+		// active operation's parameter set, and an `undefined` fallback does not
+		// suppress that. An earlier permissive fake returned the fallback instead,
+		// which let a node that failed on every single operation pass the suite.
+		getNodeParameter: (name: string, _i: number, ..._rest: unknown[]) => {
+			if (name in options.params) return options.params[name];
+			throw new Error(`Could not get parameter "${name}"`);
+		},
 		getNode: () => ({ name: 'SmartSend', type: 'smartSend' }),
 		getCredentials: async () => ({
 			organizationToken: 'token',
@@ -122,6 +128,48 @@ describe('execute: happy path', () => {
 			parameters: ['a', 'b'],
 			urlButtonParams: [{ buttonIndex: 0, value: 'abc' }],
 		});
+	});
+});
+
+describe('execute: parameters absent from the current operation', () => {
+	/**
+	 * Regression: the node reads one superset of parameters for all 22
+	 * operations. Real n8n THROWS `Could not get parameter "x"` for anything
+	 * outside the active operation's parameter set, and an `undefined` fallback
+	 * does not suppress it. That broke every operation in a real instance while
+	 * a permissive test fake kept the suite green.
+	 */
+	it('sends a template even though message/tagId/botId are not present', async () => {
+		const { run, calls } = harness({
+			params: {
+				resource: 'message',
+				operation: 'sendTemplate',
+				phoneNumber: '1',
+				templateName: 'cart_24',
+			},
+		});
+
+		const result = await run();
+
+		expect(calls).toHaveLength(1);
+		expect(calls[0].url).toContain('/messages/send-template');
+		expect(result[0][0].json).toBeDefined();
+	});
+
+	it('runs an operation that has almost no parameters at all', async () => {
+		const { run, calls } = harness({
+			params: { resource: 'organization', operation: 'validate' },
+		});
+
+		await run();
+
+		expect(calls[0].url).toContain('/validate');
+	});
+
+	it('still surfaces a genuinely missing required parameter', async () => {
+		// Absent-and-irrelevant must be tolerated; absent-and-required must not.
+		const { run } = harness({ params: { resource: 'message', operation: 'sendTemplate' } });
+		await expect(run()).rejects.toThrow('phoneNumber');
 	});
 });
 

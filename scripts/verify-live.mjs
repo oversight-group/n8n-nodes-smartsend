@@ -53,9 +53,16 @@ function context(params = {}) {
 		getNode: () => ({ name: 'SmartSend', type: 'smartSend' }),
 		getNodeParameter: (name, ...rest) => {
 			if (name in params) return params[name];
-			// Load-options context passes the fallback as the 2nd argument;
-			// execute context passes itemIndex first, then the fallback.
-			return typeof rest[0] === 'number' ? rest[1] : rest[0];
+
+			// Load-options context passes the fallback as the 2nd argument and
+			// tolerates absent parameters.
+			if (typeof rest[0] !== 'number') return rest[0];
+
+			// Execute context: real n8n THROWS for a parameter outside the active
+			// operation's set, and an undefined fallback does not suppress it.
+			// Mirroring that here is the whole point — a permissive fake once hid a
+			// node that failed on every operation.
+			throw new Error(`Could not get parameter "${name}"`);
 		},
 		getCurrentNodeParameter: (name) => params[name],
 		getInputData: () => [{ json: {} }],

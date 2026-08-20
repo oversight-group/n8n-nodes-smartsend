@@ -1,15 +1,38 @@
 # Manual Verification Record
 
 **Date:** 2026-08-20
-**Package version:** 0.1.2
+**Package version:** 0.1.3
 **Workspace:** a live production workspace (WhatsApp connected)
 **n8n:** official Docker image, custom node installed into `~/.n8n/nodes` from a packed tarball
+
+## Test-fake fidelity
+
+Two bugs reached users, and both trace to test doubles that were kinder than
+real n8n. Recorded here because the pattern, not either bug, is the lesson.
+
+1. **`getNodeParameter` throws** for a parameter outside the active operation's
+   parameter set, and an `undefined` fallback does *not* suppress it. The
+   original fake returned the fallback instead, so a node that failed on every
+   one of its 22 operations passed the entire suite. Symptom in n8n:
+   `Could not get parameter "message"`.
+2. **`NodeConnectionTypes` does not exist on older `n8n-workflow`**, and reading
+   `.Main` off it throws during class construction. n8n rewrites any such
+   `TypeError` into `Class could not be found. Please check if the class is
+   named correctly.`, which points nowhere near the cause.
+
+The fakes in `test/executeLoop.test.ts` and `scripts/verify-live.mjs` now
+reproduce the throwing behaviour, and `test/loadability.test.ts` constructs the
+node with the newer export mocked away.
+
+A fake more permissive than production is worse than no test at all: it turns a
+broken build into a green one. When a double stands in for a framework, copy the
+framework's failure behaviour first and its success behaviour second.
 
 ## Automated gates
 
 | Gate | Command | Result |
 |---|---|---|
-| Unit tests (no network) | `npm test` | **PASS** — 136 tests, 9 suites |
+| Unit tests (no network) | `npm test` | **PASS** — 143 tests, 10 suites |
 | TypeScript | `npx tsc --noEmit` | **PASS** |
 | n8n community lint ruleset | `npm run lint` | **PASS** |
 | Build + manifest resolution | `npm run build` | **PASS** — both manifest paths resolve |

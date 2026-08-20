@@ -30,6 +30,30 @@ import { smartSendApiRequest } from './transport/request';
 const MAIN_CONNECTION: NodeConnectionType = NodeConnectionTypes?.Main ?? 'main';
 
 /**
+ * Reads a node parameter that may not belong to the current operation.
+ *
+ * n8n throws `Could not get parameter "x"` when a parameter is not part of the
+ * active parameter set, and passing `undefined` as the fallback does NOT
+ * suppress it — n8n treats "no fallback" and "undefined fallback" identically.
+ *
+ * This node reads one superset of parameters for every operation, so absent
+ * parameters are the normal case and must never abort execution. Catching is
+ * used rather than a non-undefined fallback because the fallback semantics have
+ * varied between n8n versions, whereas the throw is reliable to intercept.
+ */
+function optionalParameter(
+	ctx: IExecuteFunctions,
+	name: string,
+	itemIndex: number,
+): unknown {
+	try {
+		return ctx.getNodeParameter(name, itemIndex, undefined);
+	} catch {
+		return undefined;
+	}
+}
+
+/**
  * Every parameter any operation might read. Absent ones resolve to undefined
  * and are dropped, so a single pass is cheaper and less error-prone than
  * per-operation parameter lists.
@@ -94,7 +118,7 @@ export class SmartSend implements INodeType {
 
 				const params: OperationParams = {};
 				for (const key of COMMON_PARAMS) {
-					const value = this.getNodeParameter(key, i, undefined);
+					const value = optionalParameter(this, key, i);
 					if (value !== undefined) params[key] = value;
 				}
 
