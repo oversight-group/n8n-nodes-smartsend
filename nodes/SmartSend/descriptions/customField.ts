@@ -34,7 +34,14 @@ const fieldRowValues: INodeProperties[] = [
 		displayName: 'Field Name or ID',
 		name: 'fieldId',
 		type: 'options',
-		typeOptions: { loadOptionsMethod: 'getCustomFields', loadOptionsDependsOn: ['fieldListId'] },
+		// Both forms are listed so the dropdown re-fetches when the List selection
+		// changes in either shape: the bare name matches the top-level parameter in
+		// "Set Value", the "&" form the sibling inside the "Set Multiple Values"
+		// collection. Whichever does not apply simply resolves to nothing.
+		typeOptions: {
+			loadOptionsMethod: 'getCustomFields',
+			loadOptionsDependsOn: ['fieldListId', '&fieldListId'],
+		},
 		default: '',
 		description:
 			'Custom field to set. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',

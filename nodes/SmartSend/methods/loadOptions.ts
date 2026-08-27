@@ -87,7 +87,25 @@ export const loadOptions = {
 	},
 
 	async getCustomFields(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-		const listId = this.getCurrentNodeParameter('fieldListId') as string | undefined;
+		// The List picker that scopes this dropdown appears in two different
+		// shapes: a top-level parameter for "Set Value", and an entry inside the
+		// fieldsUi fixedCollection for "Set Multiple Values".
+		//
+		// n8n resolves a bare name as an ABSOLUTE path from the node's parameters,
+		// and a "&"-prefixed name relative to the current collection item. So the
+		// two shapes need opposite forms and only one ever resolves:
+		//
+		//   Set Value     'fieldListId'  -> fieldListId                       ✓
+		//                 '&fieldListId' -> .fieldListId                      undefined
+		//   Set Multiple  'fieldListId'  -> fieldListId                       undefined
+		//                 '&fieldListId' -> fieldsUi.field[0].fieldListId     ✓
+		//
+		// Reading only the bare name left the multi-field dropdown permanently
+		// empty, whatever the workspace contained. Neither lookup throws when it
+		// misses, so trying both covers each shape from one method.
+		const listId = (this.getCurrentNodeParameter('&fieldListId') ??
+			this.getCurrentNodeParameter('fieldListId')) as string | undefined;
+
 		if (listId === undefined || listId === '') return [];
 		return dropdown(this, '/rpc/custom-fields', { listId });
 	},
