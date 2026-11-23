@@ -1,6 +1,6 @@
 # n8n-nodes-smartsend
 
-An [n8n](https://n8n.io) community node for [SmartSend](https://docs.smartsend.co.il) V2 — WhatsApp
+An [n8n](https://n8n.io) community node for [SmartSend](https://docs.smartsend.co.il) V2: WhatsApp
 automation from your n8n workflows.
 
 - **22 operations** across 9 resources: messages, conversations, tags, lists, custom fields, bot
@@ -39,7 +39,7 @@ Create a **SmartSend API** credential with two fields:
 > **⚠️ Use the token, not the short workspace code.**
 >
 > SmartSend shows you two values. The short one (something like `a1b2c3d4`) is **not** what this
-> credential wants — supplying it fails with `unknown organization`. Use the long token (a
+> credential wants: supplying it fails with `unknown organization`. Use the long token (a
 > 25-character value). Click **Test** on the credential; a success also confirms your WhatsApp
 > connection is live.
 
@@ -57,7 +57,7 @@ Create a **SmartSend API** credential with two fields:
 | **Notification** | Send Push |
 | **Organization** | Validate |
 
-Phone numbers are accepted in any format (`972…`, `05…`, `+972…`) — SmartSend normalises them
+Phone numbers are accepted in any format (`972…`, `05…`, `+972…`). SmartSend normalises them
 server-side, so no formatting is required on your end.
 
 ### Template parameters
@@ -87,7 +87,7 @@ base64-encodes it and derives the file name from the binary metadata unless you 
 
 Works across n8n versions. The node resolves its connection type defensively, because
 `NodeConnectionTypes` is a recent `n8n-workflow` export and reading it on an older install throws
-during class construction — which n8n reports as the misleading "Class could not be found". If you
+during class construction, which n8n reports as the misleading "Class could not be found". If you
 see that error on any n8n node, suspect a throwing constructor rather than a naming problem.
 
 ## Known SmartSend API quirks
@@ -98,7 +98,7 @@ in this node.
 - **Empty dropdowns are normal.** The RPC endpoints return `success: true` with an empty array
   rather than an error. An empty Tags, Lists or Users dropdown means your workspace has none yet.
 - **Validation errors carry no detail.** A rejected request returns only
-  `{"success": false, "message": "validation failed"}` — no field name, no error code. This node
+  `{"success": false, "message": "validation failed"}`, with no field name, no error code. This node
   therefore checks required fields before sending so you get a useful message.
 - **Custom fields are sourced per list.** The API exposes custom-field definitions only per list,
   while the set-value endpoints take a bare field ID. The node offers a **Field Source** choice:
@@ -126,7 +126,7 @@ npm run verify:live  # drives the node's own dropdown and template-field code
 ```
 
 Both hit read-only endpoints only and send no WhatsApp messages. `verify:live` is the more useful
-of the two while developing — it prints exactly what every dropdown and every dynamic template
+of the two while developing: it prints exactly what every dropdown and every dynamic template
 field will render in the UI, so you can check the node's behaviour without clicking through n8n.
 
 ### Testing in a real n8n
@@ -149,6 +149,10 @@ before changing the transport or the template flatteners.
 
 See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full route to npm and n8n verification.
 Run `npm run scan` to check the package against n8n's real verification gate before releasing.
+
+## About
+
+Maintained by [Oversight](https://oversight.co.il/hqa7n), an Israeli software company. SmartSend is Oversight's venture for WhatsApp sales, service and marketing.
 
 ## License
 
