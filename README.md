@@ -150,10 +150,6 @@ before changing the transport or the template flatteners.
 See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full route to npm and n8n verification.
 Run `npm run scan` to check the package against n8n's real verification gate before releasing.
 
-## About
-
-Maintained by [Oversight](https://oversight.co.il/hqa7n), an Israeli software company. SmartSend is Oversight's venture for WhatsApp sales, service and marketing.
-
 ## License
 
 [MIT](LICENSE)
